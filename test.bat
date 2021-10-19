@@ -7,6 +7,7 @@
 	type logo.txt
 	ECHO.
 	TIMEOUT 6
+	GOTO antivirus
 
 	:antivirus
 	::Esta seccion abre Seguridad de Windows
@@ -15,7 +16,7 @@
 	ECHO -- Desactive Proteccion en tiempo real y proteccion en la nube para continuar --
 	start /WAIT windowsdefender:
 	PAUSE
-	goto webtest
+	GOTO webtest
 
 	:webtest
 	:: Esta seccion verifica si existe una conexion a internet
@@ -43,6 +44,7 @@
 	:kmsoffline
 	:: Esta seccion maneja el activador sin internet
 	ECHO.
+	IF NOT EXIST "%~dp0aact\offline\AAct.exe" GOTO restoreactivators
 	ECHO -- Abriendo activador OFFLINE --
 	ECHO -- Script continuara al cerrar el activador --
 	start /WAIT "" "%~dp0aact\offline\AAct.exe"
@@ -51,6 +53,7 @@
 	:kmsonline
 	::Esta seccion abre los activadores
 	ECHO.
+	IF NOT EXIST "%~dp0aact\online\AAct_Network.exe" GOTO restoreactivators
 	ECHO -- Abriendo activador ONLINE --
 	ECHO -- Script continuara al cerrar el activador --
 	start /WAIT "" "%~dp0aact\online\AAct_Network.exe"
@@ -90,16 +93,27 @@
 	start /WAIT microsoft.windows.camera:
 	ECHO -- Camara ha sido abierta --
 	PAUSE
+	EXIT
 	
 	:cdtest
 	:: Esta seccion prueba el funcionamiento de lectora de CD (si existe)
+
+	:: == UTILIDADES ==
+
+	:restoreactivators
+	:: Script para restaurar activadores
+	ECHO -- Activadores desaparecidos, restaurando...
+	tar -xf aact\Respaldo.zip -C aact
+	ECHO -- Restauracion completa --
+	TIMEOUT 3
+	if %connected% == "0"GOTO kmsonline
+	GOTO kmsoffline
 
 
 	::COMENTARIOS
 	:: COMBROBAR MANERA DE VERIFICAR LECTORA DE DISCOS
 	:: AGREGAR MENU AL INICIO DE SCRIP PARA SALTAR A CIERTO PASO
 	:: AGREGAR RESUMEN DE CONFIGURACION DE EQUIPO AL FINAL
-	:: REPARAR ACTIVADOR BORRADO POR ANTIVIRUS (EXTRACCION AUTOMATICA)
 	:: REVISAR ASUTO DE PERMISOS DE ADMINISTRADOR
 	:: AGREGAR CASOS EN CASO QUE CIERTOS PROGRAMAS NO ESTAN INSTALADOS
 	:: VER MANERA QUE OFFICE Y WINDOWS ESTEN ACTIVADOS AL FINAL POR CMD
