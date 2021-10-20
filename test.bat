@@ -10,14 +10,6 @@
 	TIMEOUT 6 > nul
 	GOTO antivirus
 
-	:detect-type
-	ECHO.
-	ECHO -- Detectando tipo de equipo --
-	set /a "chassNum=0" 
-	set "command=2^>nul WMIC SystemEnclosure Get ChassisTypes /value" 
-	for /f "tokens=2 delims=={}" %%A IN ('%command%') do ( 
-	2>nul set /a "chassNum=%%A" 
-
 	:antivirus
 	::Esta seccion abre Seguridad de Windows
 	ECHO.
@@ -118,6 +110,16 @@
 	if %connected% == "0"GOTO kmsonline
 	GOTO kmsoffline
 
+	:detect-type
+	:: Script para determinar el tipo de equipo y las pruebas a hacer
+	ECHO.
+	ECHO -- Detectando tipo de equipo --
+	set /a "chassNum=0" 
+	set "command=2^>nul WMIC SystemEnclosure Get ChassisTypes /value" 
+	for /f "tokens=2 delims=={}" %%A IN ('%command%') do ( 
+	2>nul set /a "chassNum=%%A"
+	CALL :CASE_%chassNum%
+
 	:: == MENUS ==
 
 
@@ -132,8 +134,10 @@
 	:: AGREGAR PROGRAMAS DE DIAGNOSTICO Y TESTEO FINAL (CRYSTALDISK, FURMARK, AOMIPARTITION, AIDA64, DDU. )
 	:: AGREGAR CASOS EN CASO QUE PROGRAMAS DE DIAGNOSTICO NO ESTAN ENCONTRADOS
 	:: AGREGAR JUEGOS PARA PRUEBA GAMER
-	:: PRUEBAS PARA MOUSE Y CLICKS
-	:: PRUEBAS PARA PUERTOS USB
+	:: DETECCION DE RED INALAMBRICA, BLUETOOTH
+	:: DESARROLLAR PRUEBAS MEDIA PARA ESCRITORIO (SALTAR MICROFONO)
+	:: PRUEBAS PARA MOUSE Y CLICKS (DETECTAR DOBLE CLICK EN LAPTOPS)
+	:: PRUEBAS PARA PUERTOS USB (TA CABRON)
 	:: RECORDATORIOS DE PRUEBAS DE HARDWARE
 
 	:: 
