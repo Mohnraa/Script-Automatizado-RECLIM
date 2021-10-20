@@ -10,6 +10,14 @@
 	TIMEOUT 6 > nul
 	GOTO antivirus
 
+	:detect-type
+	ECHO.
+	ECHO -- Detectando tipo de equipo --
+	set /a "chassNum=0" 
+	set "command=2^>nul WMIC SystemEnclosure Get ChassisTypes /value" 
+	for /f "tokens=2 delims=={}" %%A IN ('%command%') do ( 
+	2>nul set /a "chassNum=%%A" 
+
 	:antivirus
 	::Esta seccion abre Seguridad de Windows
 	ECHO.
@@ -23,7 +31,7 @@
 	:: Esta seccion verifica si existe una conexion a internet
 	ECHO.
 	ECHO -- Verificando conexion a internet --
-	ping 130.0.0.56 > nul
+	ping 8.8.8.8 > nul
 	if "%errorlevel%" == "0" SET connected="0" && goto netok
 	ECHO !! Precaucion: Conexion a internet no detectada !!
 	TIMEOUT /T 3 /NOBREAK > nul
@@ -117,6 +125,7 @@
 	:: IMPLEMENTAR SI EQUIPO ES ESCRITORIO O LAPTOP (wmic systemenclosure get chassistypes)
 	:: AGREGAR MENU AL INICIO DE SCRIPT PARA SALTAR A CIERTO PASO
 	:: VER MANERA DE VERIFICAR QUE OFFICE Y WINDOWS ESTEN ACTIVADOS AL FINAL
+	:: REVISAR COMPATIBILIDAD CON WINDOWS 7 
 	:: COMBROBAR MANERA DE VERIFICAR LECTORA DE DISCOS
 	:: AGREGAR RESUMEN DE CONFIGURACION DE EQUIPO AL FINAL
 	:: REVISAR SI EL DISCO FUE EXPANDIDO (DISCO ESTE EN USO EN TOTALIDAD)
