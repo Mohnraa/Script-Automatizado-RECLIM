@@ -13,8 +13,8 @@
 	:antivirus
 	::Esta seccion abre Seguridad de Windows
 	ECHO.
-	ECHO -- Abriendo Windows Defender --
-	ECHO -- 
+	ECHO -- Abriendo Seguridad de Windows --
+	ECHO -- Mantenga la ventana abierta durante el proceso --
 	ECHO -- Desactive Proteccion en tiempo real y proteccion en la nube para continuar --
 	start /WAIT windowsdefender:
 	PAUSE
@@ -75,7 +75,6 @@
 	:: Esta seccion abre paginas de prueba de teclado, microfno y bocinas
 	ECHO -- Abriendo paginas de prueba de bocinas, microfono y teclado --
 	start /WAIT chrome /incognito "https://www.onlinemictest.com/es/prueba-de-teclado/" " https://es.mictests.com" "https://www.youtube.com"
-	ECHO -- Paginas abiertas!
 	PAUSE
 	GOTO cameratest
 
@@ -86,7 +85,6 @@
 	ECHO -- Prueba ha sido abierta --
 	PAUSE
 	GOTO cameratest
-
 	
 	:cameratest
 	ECHO.
@@ -95,10 +93,31 @@
 	start /WAIT microsoft.windows.camera:
 	ECHO -- Camara ha sido abierta --
 	PAUSE
-	EXIT
-	
+	GOTO cdtest
+
 	:cdtest
 	:: Esta seccion prueba el funcionamiento de lectora de CD (si existe)
+	ECHO.
+	ECHO -- Detectando lectoras de CD -
+	SET found="N"
+	for /f "skip=1 tokens=1,2" %%i in ('wmic logicaldisk get caption^, drivetype') do (
+  		if [%%j]==[5] SET found="Y" && CALL powershell "(new-object -COM Shell.Application).NameSpace(17).ParseName('%%i').InvokeVerb('Eject')"
+  		)
+	if %found% == "Y" (ECHO -- Lectoras detectadas y abiertas --) else (ECHO -- No se detectaron lectoras --)
+	PAUSE
+	EXIT
+
+	:: == NO IMPLEMENTADO EN SCRIPT ==
+
+	:reminders
+	:: Esta seccion muestra los recordatorios de pruebas de hardware
+	ECHO.
+	ECHO -- Antes de terminar, por favor revise los puertos USB y las salidas de video (VGA, HDMI) --
+	PAUSE
+
+	:summary
+	:: En esta seccion se hace el resumen de configuracion del equipo
+
 
 	:: == UTILIDADES ==
 
