@@ -120,7 +120,7 @@
 	ECHO.
 	ECHO  === RESUMEN ===
 	ECHO.
-	CHOICE /C:Y /CS /M "-- Presione "Y" para continuar...
+	CHOICE /C:Y /CS /M -- Presione "Y" para continuar...
 
 
 	:: == UTILIDADES ==
