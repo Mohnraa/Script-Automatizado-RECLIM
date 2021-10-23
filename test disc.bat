@@ -1,5 +1,2 @@
 @echo off
-ECHO ENTRO SCRIPT
-CALL ejectdisc.bat
-ECHO SALIO SCRIPT - PAUSA EN TEST DISC!
-PAUSE
+CHOICE /C:Y /CS /M "Presiona "Y" para continuar...

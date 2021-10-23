@@ -117,6 +117,10 @@
 
 	:summary
 	:: En esta seccion se hace el resumen de configuracion del equipo
+	ECHO.
+	ECHO  === RESUMEN ===
+	ECHO.
+	CHOICE /C:Y /CS /M "-- Presione "Y" para continuar...
 
 
 	:: == UTILIDADES ==
