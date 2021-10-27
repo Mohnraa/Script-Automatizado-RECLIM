@@ -167,6 +167,9 @@
 	:: == LAPTOP ==
 	:: PRUEBAS PARA MOUSE Y CLICKS (DETECTAR DOBLE CLICK EN LAPTOPS)
 
+	:: < BUGS - ESTA ITERACION >
+	:: - Realizar chequeo de red en mediatest (hacer una reconexion)
+
 	:: == Proxima iteracion ==
 	:: REVISAR COMPATIBILIDAD CON WINDOWS 7 (PROBABLEMENTE NUEVO SCRIPT)
 	:: COMBROBAR MANERA DE VERIFICAR LECTORA DE DISCOS
