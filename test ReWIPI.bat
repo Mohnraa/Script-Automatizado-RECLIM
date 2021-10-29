@@ -1,9 +1,14 @@
 @echo off
-call AcroRdrDC1700920044_es_ES_des.exe /sAll
-TIMEOUT 5
-call vlc-2.2.6-win32desatendido.exe /S
-TIMEOUT 5
-::CHROME NO SE INSTALA - REVISAR
-call chrome_install.exe /silent /install
-TIMEOUT 5
-call WinRar_5.40_x64.exe /S
+title Test para Audio offline
+
+ECHO.
+ECHO -- Reproduciendo sonido --
+:play
+call powershell [console]::beep(1375,100)
+call powershell [console]::beep(1475,100)
+call powershell [console]::beep(1575,100)
+CHOICE /C:YRr /CS /N /M "Presione R para repetir el sonido o Y para continuar"
+if %ERRORLEVEL% EQU 1 ECHO SALIO TEST!!
+if %ERRORLEVEL% EQU 2 GOTO play
+if %ERRORLEVEL% EQU 3 GOTO play
+PAUSE

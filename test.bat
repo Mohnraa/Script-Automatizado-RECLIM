@@ -112,7 +112,7 @@
 	:reminders
 	:: Esta seccion muestra los recordatorios de pruebas de hardware
 	ECHO.
-	ECHO -- Antes de terminar, por favor revise los puertos USB y las salidas de video (VGA, HDMI) --
+	ECHO -- Antes de terminar, por favor revise los puertos USB y las salidas de video (VGA, HDMI, DP) --
 	PAUSE
 
 	:summary
@@ -121,6 +121,15 @@
 	ECHO  === RESUMEN ===
 	ECHO.
 	CHOICE /C:Y /CS /M -- Presione "Y" para continuar...
+
+	:testsound-offline
+	ECHO.
+	ECHO -- Reproduciendo sonido --
+	call powershell [console]::beep(1500,1000)
+	CHOICE /C:YRr /CS /M "Presione R para repetir el sonido o Y para continuar"
+	if %ERRORLEVEL% EQU 1 GOTO reminders
+	if %ERRORLEVEL% EQU 2 GOTO testsound-offline
+	if %ERRORLEVEL% EQU 3 GOTO testsound-offline
 
 
 	:: == UTILIDADES ==
@@ -154,13 +163,15 @@
 	:: -
 
 	:: == GENERAL ==
+	:: AGREGAR EN REMINDERS SOBRE LA BATERIA EN LAPTOPS
 	:: VER MANERA DE VERIFICAR QUE OFFICE Y WINDOWS ESTEN ACTIVADOS AL FINAL
 	:: RECORDATORIOS DE PRUEBAS DE HARDWARE
 	:: MODIFICAR PRUEBA DE SONIDO OFFLINE
 	:: AGREGAR INFORMACION DE TARJETA GRAFICA (NOMBRE, CANTIDAD DE ADAPTADORES, MEMORIA DEDICADA)
 	:: AGREGAR RESUMEN DE CONFIGURACION DE EQUIPO AL FINAL EN CONJUNTO A MARCA Y MODELO
 	:: IMPLEMENTAR SI EQUIPO ES ESCRITORIO O LAPTOP (wmic systemenclosure get chassistypes)
-	:: AGREGAR CHECKLIST DE PASOS
+	:: AGREGAR CHECKLIST DE PASOS AL FINAL
+	:: -NOTA: WINDOS 10 20H2 NO PERMITE INSTALAR DRIVERS POR DEVICE MANAGER
 
 	:: == ESCRITORIO ==
 	:: DESARROLLAR PRUEBAS MEDIA PARA ESCRITORIO (SALTAR MICROFONO)
