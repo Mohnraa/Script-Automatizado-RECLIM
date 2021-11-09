@@ -6,7 +6,7 @@
 	ECHO.
 	type logo.txt
 	ECHO.
-	ECHO -- Iniciando, presione cualquier tecla para mas opciones --
+	ECHO -- Iniciando preparacion normal, presione cualquier tecla para opciones --
 	TIMEOUT 6 > nul
 	GOTO antivirus
 
@@ -151,9 +151,20 @@
 	set "command=2^>nul WMIC SystemEnclosure Get ChassisTypes /value" 
 	for /f "tokens=2 delims=={}" %%A IN ('%command%') do ( 
 	2>nul set /a "chassNum=%%A"
-	CALL :CASE_%chassNum%
 
 	:: == MENUS ==
+	:main-menu
+	ECHO.
+	ECHO						 ---=== MENU PRINCIPAL ===---
+	ECHO.
+	ECHO - [1]: Proceso de preparacion normal
+	ECHO 		(Activacion W10-Office, DriverPack, Pruebas Teclado-Camara-Sonido-CD)
+	ECHO - [2]: Proceso de preparacion rapida
+	ECHO 		(Activacion W10-Office, DriverPack)
+	ECHO - [3]: Continuar preparacion desde cualquier paso
+	ECHO - [4]: Herramientas de Diagnostico / Reparacion
+	ECHO - [5]: SALIR
+
 
 
 	::COMENTARIOS
@@ -193,6 +204,10 @@
 	:: AGREGAR CASOS EN CASO QUE PROGRAMAS DE DIAGNOSTICO NO ESTAN ENCONTRADOS
 	:: LLEVAR UN SEGUIMIENTO DE PASOS, AGREGAR RECUPERACION DE CIERRE INESPERADO, DAR OPCIONES DE RECUPERACIONES
 	:: UN NOMBRE VRGS PARA EL SCRIPT
+	:: AGREGAR MODO RAPIDO DE PREPARACION DE EQUIPOS
+	:: VERIFICAR SI LOS ACTIVADORES HICIERON SU TRABAJO, SI NO REABRIRLOS
+	:: AGREGAR VARIABLES BANDERA PARA CAMBIAR EL FLUJO DE PREPARACION SEGUN TIPO DE PREPARACION Y EQUIPO
+	:: AGREGAR CAMINO PARA VIEJA Y NUEVA IMAGEN (REMOVER DEVICE MANAGER EN NUEVA IMAGEN)
 
 
 	:: >> IDEAS <<
