@@ -1,6 +1,6 @@
 
 	@ECHO OFF
-	title Script Activador de RECLIM 1.0b
+	title Script Activador de RECLIM 0.1 BETA
 
 	:intro
 	ECHO.
@@ -74,8 +74,8 @@
 	ECHO.
 	:: Esta seccion abre paginas de prueba de teclado, microfno y bocinas
 	ECHO -- Abriendo paginas de prueba de bocinas, microfono y teclado --
+	ECHO -- Script continuara al cerrar el navegador --
 	start /WAIT chrome /incognito "https://www.onlinemictest.com/es/prueba-de-teclado/" " https://es.mictests.com" "https://www.youtube.com"
-	PAUSE
 	GOTO cameratest
 
 	:mediatestoffline
