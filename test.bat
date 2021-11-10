@@ -4,7 +4,7 @@
 
 	:intro
 	ECHO.
-	type logo.txt
+	type "%~dp0logo.txt"
 	ECHO.
 	ECHO -- Iniciando preparacion normal, presione cualquier tecla para opciones --
 	TIMEOUT 6 > nul
@@ -105,15 +105,16 @@
   		)
 	if %found% == "Y" (ECHO -- Lectoras detectadas y abiertas --) else (ECHO -- No se detectaron lectoras --)
 	PAUSE
-	EXIT
-
-	:: == NO IMPLEMENTADO EN SCRIPT ==
+	GOTO reminders
 
 	:reminders
 	:: Esta seccion muestra los recordatorios de pruebas de hardware
 	ECHO.
 	ECHO -- Antes de terminar, por favor revise los puertos USB y las salidas de video (VGA, HDMI, DP) --
 	PAUSE
+	EXIT
+
+	:: == NO IMPLEMENTADO EN SCRIPT ==
 
 	:summary
 	:: En esta seccion se hace el resumen de configuracion del equipo
@@ -137,7 +138,7 @@
 	:restoreactivators
 	:: Script para restaurar activadores
 	ECHO -- Activadores desaparecidos, restaurando...
-	tar -xf aact\Respaldo.zip -C aact > nul
+	tar -xf "%~dp0aact\Respaldo.zip" -C "%~dp0aact" > nul
 	ECHO -- Restauracion completa --
 	TIMEOUT 4 /nobreak > nul
 	if %connected% == "0" GOTO kmsonline
@@ -158,12 +159,16 @@
 	ECHO						 ---=== MENU PRINCIPAL ===---
 	ECHO.
 	ECHO - [1]: Proceso de preparacion normal
-	ECHO 		(Activacion W10-Office, DriverPack, Pruebas Teclado-Camara-Sonido-CD)
+	ECHO 		(Activacion W10-Office + DriverPack + Pruebas Teclado-Camara-Sonido-CD)
 	ECHO - [2]: Proceso de preparacion rapida
 	ECHO 		(Activacion W10-Office, DriverPack)
-	ECHO - [3]: Continuar preparacion desde cualquier paso
-	ECHO - [4]: Herramientas de Diagnostico / Reparacion
-	ECHO - [5]: SALIR
+	ECHO - [3]: Preparacion desde cero
+	ECHO		(Instalacion Programas/Office 2019 + Preparacion normal)
+	ECHO - [4]: Continuar preparacion desde cualquier paso
+	ECHO - [5]: Herramientas de Diagnostico / Reparacion
+	ECHO - [0]: SALIR
+	ECHO.
+	CHOICE /c:12345 /M Opcion Seleccionada:
 
 
 
@@ -174,6 +179,7 @@
 	:: -
 
 	:: == GENERAL ==
+	:: CAMBIAR DIRECTORIOS RELATIVOS PARA EJECUTAR COMO ADMINISTRADOR
 	:: AGREGAR EN REMINDERS SOBRE LA BATERIA EN LAPTOPS
 	:: VER MANERA DE VERIFICAR QUE OFFICE Y WINDOWS ESTEN ACTIVADOS AL FINAL
 	:: RECORDATORIOS DE PRUEBAS DE HARDWARE
