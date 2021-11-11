@@ -1,9 +1,13 @@
-@echo off
-call AcroRdrDC1700920044_es_ES_des.exe /sAll
-TIMEOUT 5
-call vlc-2.2.6-win32desatendido.exe /S
-TIMEOUT 5
-::CHROME NO SE INSTALA - REVISAR
-call chrome_install.exe /silent /install
-TIMEOUT 5
-call WinRar_5.40_x64.exe /S
+@Echo off
+ ECHO == Iniciando preparacion normal, presione cualquier tecla para mas opciones ==
+ For /L %%i in (30 -1 1)Do (
+  For /F "Delims=" %%G in ('Choice /T 1 /N /C:0123456789qwertyuiopasdfghjklzxcvbnm /D 0')Do (
+   If %ERRORLEVEL% GTR 1 ECHO == Cancele cuenta y entre menu && PAUSE && EXIT
+  )
+ )
+ ECHO -- SE INICIO PROCESO NORMAL
+ PAUSE
+
+
+
+
