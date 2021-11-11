@@ -1,14 +1,21 @@
-
 	@ECHO OFF
 	title Script Activador de RECLIM 0.1 BETA
 
+	:: INICIADOR DE VARIABLES
+
 	:intro
-	ECHO.
-	type "%~dp0logo.txt"
-	ECHO.
-	ECHO -- Iniciando preparacion normal, presione cualquier tecla para opciones --
-	TIMEOUT 6 > nul
-	GOTO antivirus
+	 For /L %%i in (10 -1 1)Do (
+  	  For /F "Delims=" %%G in ('Choice /T 1 /N /C:0123456789h /D h')Do (
+       Cls
+   	   type "%~dp0logo.txt"
+       ECHO 	== Iniciando preparacion normal en %%i segundos, presione 0 para empezar o [1-9] para mas opciones ==
+       IF %%i LEQ 4 IF %%i GTR 1 call powershell "[console]::beep(500,600)"
+       IF %%i EQU 1 call powershell "[console]::beep(990,600)"
+       IF %%G EQU 0 GOTO antivirus
+       IF %%G GTR 0 IF %%G LSS 10 GOTO main-menu
+      )
+     )
+    GOTO antivirus
 
 	:antivirus
 	::Esta seccion abre Seguridad de Windows
@@ -25,28 +32,16 @@
 	ECHO.
 	ECHO -- Verificando conexion a internet --
 	ping 8.8.8.8 > nul
-	if "%errorlevel%" == "0" SET connected="0" && goto netok
+	if "%errorlevel%" == "0" SET connected="0" && ECHO -- Conexion detectada, continuando -- && goto kmsonline
 	ECHO !! Precaucion: Conexion a internet no detectada !!
 	TIMEOUT /T 3 /NOBREAK > nul
 	SET connected="1"
 	goto kmsoffline
 
-	:netok
-	ECHO -- Conexion detectada, continuando... ---
-	GOTO devicemanager
-
-	:devicemanager
-	ECHO.
-	::Esta seccion abre el administrador de dispositivos
-	ECHO -- Abriendo administrador de dispositivos --
-	ECHO -- Script continuara al cerrar la ventana --
-	start /WAIT devmgmt.msc
-	goto kmsonline
-
 	:kmsoffline
 	:: Esta seccion maneja el activador sin internet
-	ECHO.
 	IF NOT EXIST "%~dp0aact\offline\AAct.exe" GOTO restoreactivators
+	ECHO.
 	ECHO -- Abriendo activador OFFLINE --
 	ECHO -- Script continuara al cerrar el activador --
 	start /WAIT "" "%~dp0aact\offline\AAct.exe"
@@ -54,8 +49,8 @@
 
 	:kmsonline
 	::Esta seccion abre los activadores
-	ECHO.
 	IF NOT EXIST "%~dp0aact\online\AAct_Network.exe" GOTO restoreactivators
+	ECHO.
 	ECHO -- Abriendo activador ONLINE --
 	ECHO -- Script continuara al cerrar el activador --
 	start /WAIT "" "%~dp0aact\online\AAct_Network.exe"
@@ -114,6 +109,31 @@
 	PAUSE
 	EXIT
 
+	:: == UTILIDADES ==
+
+	:restoreactivators
+	:: Script para restaurar activadores
+	ECHO.
+	ECHO -- Activadores desaparecidos, restaurando...
+	tar -xf "%~dp0aact\Respaldo.zip" -C "%~dp0aact" > nul
+	IF NOT EXIST "%~dp0aact\online\AAct_Network.exe" ECHO !! ERROR: RESTAURACION FALLIDA, REINTENTANDO !! && TIMEOUT 4 /nobreak > nul && GOTO restoreactivators
+	IF NOT EXIST "%~dp0aact\offline\AAct.exe" ECHO !! ERROR: RESTAURACION FALLIDA, REINTENTANDO !! && TIMEOUT 4 /nobreak > nul && GOTO restoreactivators	
+	ECHO -- Restauracion completa --
+	TIMEOUT 4 /nobreak > nul
+	if %connected% == "0" GOTO kmsonline
+	GOTO kmsoffline
+
+	:mediacheck
+	:: Esta seccion verifica si existe una conexion a internet
+	ECHO.
+	ECHO -- Verificando conexion a internet --
+	ping 1.1.1.1 > nul
+	if "%errorlevel%" == "0" (SET connected="0" && ECHO -- Conexion detectada, continuando -- && goto mediatest)
+	ECHO !! Precaucion: Conexion a internet no detectada !!
+	TIMEOUT /T 3 /NOBREAK > nul
+	SET connected="1"
+	goto mediatestoffline
+
 	:: == NO IMPLEMENTADO EN SCRIPT ==
 
 	:summary
@@ -132,18 +152,14 @@
 	if %ERRORLEVEL% EQU 2 GOTO testsound-offline
 	if %ERRORLEVEL% EQU 3 GOTO testsound-offline
 
-
-	:: == UTILIDADES ==
-
-	:restoreactivators
-	:: Script para restaurar activadores
-	ECHO -- Activadores desaparecidos, restaurando...
-	tar -xf "%~dp0aact\Respaldo.zip" -C "%~dp0aact" > nul
-	ECHO -- Restauracion completa --
-	TIMEOUT 4 /nobreak > nul
-	if %connected% == "0" GOTO kmsonline
-	GOTO kmsoffline
-
+	:devicemanager
+	ECHO.
+	::Esta seccion abre el administrador de dispositivos
+	ECHO -- Abriendo administrador de dispositivos --
+	ECHO -- Script continuara al cerrar la ventana --
+	start /WAIT devmgmt.msc
+	goto kmsonline
+	
 	:detect-type
 	:: Script para determinar el tipo de equipo y las pruebas a hacer
 	ECHO.
@@ -155,20 +171,65 @@
 
 	:: == MENUS ==
 	:main-menu
+	Cls
 	ECHO.
 	ECHO						 ---=== MENU PRINCIPAL ===---
 	ECHO.
 	ECHO - [1]: Proceso de preparacion normal
-	ECHO 		(Activacion W10-Office + DriverPack + Pruebas Teclado-Camara-Sonido-CD)
+	ECHO        (Activacion W10-Office + DriverPack + Pruebas Teclado/Camara/Sonido/CD)
+	ECHO.
 	ECHO - [2]: Proceso de preparacion rapida
-	ECHO 		(Activacion W10-Office, DriverPack)
+	ECHO        (Activacion W10-Office, DriverPack)
+	ECHO.
 	ECHO - [3]: Preparacion desde cero
-	ECHO		(Instalacion Programas/Office 2019 + Preparacion normal)
+	ECHO        (Instalacion Programas/Office 2019 + Preparacion normal)
+	ECHO.
 	ECHO - [4]: Continuar preparacion desde cualquier paso
+	ECHO.
 	ECHO - [5]: Herramientas de Diagnostico / Reparacion
+	ECHO.
 	ECHO - [0]: SALIR
 	ECHO.
-	CHOICE /c:12345 /M Opcion Seleccionada:
+	TIMEOUT 2 /nobreak > nul
+	CHOICE /c:123450 /N /M "Opcion Seleccionada: "
+	IF %ERRORLEVEL% EQU 6 EXIT
+	IF %ERRORLEVEL% EQU 1 GOTO antivirus
+	IF %ERRORLEVEL% EQU 2 GOTO antivirus
+	IF %ERRORLEVEL% EQU 3 GOTO antivirus
+	IF %ERRORLEVEL% EQU 4 GOTO steps-menu
+	IF %ERRORLEVEL% EQU 5 ECHO -- NO IMPLEMENTADO -- && PAUSE && GOTO intro
+
+	:steps-menu
+	Cls
+	ECHO.
+	ECHO						 ---=== MENU DE PASOS ===---
+	ECHO            (Se continuara el procedimiento desde el paso seleccionado)
+	ECHO.
+	ECHO - [1]: Desactivar antivirus
+	ECHO.
+	ECHO - [2]: Activacion Windows - Office
+	ECHO.
+	ECHO - [3]: Instalacion de Driver por DriverPack
+	ECHO.
+	ECHO - [4]: Prueba de Teclado / Sonido / Microfono
+	ECHO.
+	ECHO - [5]: Prueba de Camara Web
+	ECHO.
+	ECHO - [6]: Prueba de Lectora de CD
+	ECHO.
+	ECHO - [0]: REGRESAR A MENU PRINCIPAL
+	ECHO.
+	TIMEOUT 2 /nobreak > nul
+	CHOICE /c:12345670 /N /M "Opcion Seleccionada: "
+	IF %ERRORLEVEL% EQU 1 GOTO antivirus
+	IF %ERRORLEVEL% EQU 2 GOTO webtest
+	IF %ERRORLEVEL% EQU 3 GOTO driverpack
+	IF %ERRORLEVEL% EQU 4 GOTO mediacheck
+	IF %ERRORLEVEL% EQU 5 GOTO cameratest
+	IF %ERRORLEVEL% EQU 6 GOTO cdtest
+	IF %ERRORLEVEL% EQU 8 GOTO main-menu
+
+
 
 
 
