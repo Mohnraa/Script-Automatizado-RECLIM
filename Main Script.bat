@@ -9,8 +9,6 @@
        Cls
    	   type "%~dp0logo.txt"
        ECHO 	== Iniciando preparacion normal en %%i segundos, presione 0 para empezar o [1-9] para mas opciones ==
-       IF %%i LEQ 4 IF %%i GTR 1 call powershell "[console]::beep(500,600)"
-       IF %%i EQU 1 call powershell "[console]::beep(990,600)"
        IF %%G EQU 0 GOTO antivirus
        IF %%G GTR 0 IF %%G LSS 10 GOTO main-menu
       )
@@ -134,6 +132,9 @@
 	SET connected="1"
 	goto mediatestoffline
 
+	:fanfare
+	
+
 	:: == NO IMPLEMENTADO EN SCRIPT ==
 
 	:summary
@@ -169,7 +170,14 @@
 	for /f "tokens=2 delims=={}" %%A IN ('%command%') do ( 
 	2>nul set /a "chassNum=%%A"
 
+	:w10-activation-check
+	call cscript //nologo %systemroot%\System32\slmgr.vbs /xpr | find /i "Activated" > nul
+	if not errorlevel 1 (
+   		ECHO == WINDOWS SE HA ACTIVADO CORRECTAMENTE ==
+	)
+
 	:: == MENUS ==
+
 	:main-menu
 	Cls
 	ECHO.
@@ -190,7 +198,7 @@
 	ECHO.
 	ECHO - [0]: SALIR
 	ECHO.
-	TIMEOUT 2 /nobreak > nul
+	TIMEOUT 1 /nobreak > nul
 	CHOICE /c:123450 /N /M "Opcion Seleccionada: "
 	IF %ERRORLEVEL% EQU 6 EXIT
 	IF %ERRORLEVEL% EQU 1 GOTO antivirus
@@ -202,7 +210,7 @@
 	:steps-menu
 	Cls
 	ECHO.
-	ECHO						 ---=== MENU DE PASOS ===---
+	ECHO                           ---=== MENU DE PASOS ===---
 	ECHO            (Se continuara el procedimiento desde el paso seleccionado)
 	ECHO.
 	ECHO - [1]: Desactivar antivirus
@@ -219,7 +227,7 @@
 	ECHO.
 	ECHO - [0]: REGRESAR A MENU PRINCIPAL
 	ECHO.
-	TIMEOUT 2 /nobreak > nul
+	TIMEOUT 1 /nobreak > nul
 	CHOICE /c:12345670 /N /M "Opcion Seleccionada: "
 	IF %ERRORLEVEL% EQU 1 GOTO antivirus
 	IF %ERRORLEVEL% EQU 2 GOTO webtest
@@ -275,6 +283,7 @@
 	:: VERIFICAR SI LOS ACTIVADORES HICIERON SU TRABAJO, SI NO REABRIRLOS
 	:: AGREGAR VARIABLES BANDERA PARA CAMBIAR EL FLUJO DE PREPARACION SEGUN TIPO DE PREPARACION Y EQUIPO
 	:: AGREGAR CAMINO PARA VIEJA Y NUEVA IMAGEN (REMOVER DEVICE MANAGER EN NUEVA IMAGEN)
+	:: AGREGAR REDUNDACIA PARA PROCESOS
 
 
 	:: >> IDEAS <<

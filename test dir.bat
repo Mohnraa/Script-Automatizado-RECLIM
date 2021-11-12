@@ -2,7 +2,7 @@
 setlocal 
 set /a "chassNum=0" 
 set "command=2^>nul WMIC SystemEnclosure Get ChassisTypes /value" 
-for /f "tokens=2 delims=={}" %%A IN ('%command%') do ( 
+for /f "tokens=2 delims=={}" %%A IN ("cscript //nologo %systemroot%\System32\slmgr.vbs /xpr") do ( 
 2>nul set /a "chassNum=%%A" 
 ) 
 
