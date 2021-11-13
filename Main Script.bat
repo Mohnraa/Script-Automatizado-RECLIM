@@ -170,12 +170,6 @@
 	for /f "tokens=2 delims=={}" %%A IN ('%command%') do ( 
 	2>nul set /a "chassNum=%%A"
 
-	:w10-activation-check
-	call cscript //nologo %systemroot%\System32\slmgr.vbs /xpr | find /i "Activated" > nul
-	if not errorlevel 1 (
-   		ECHO == WINDOWS SE HA ACTIVADO CORRECTAMENTE ==
-	)
-
 	:: == MENUS ==
 
 	:main-menu
