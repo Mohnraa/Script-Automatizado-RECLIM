@@ -45,7 +45,7 @@
 	ECHO -- Abriendo activador OFFLINE --
 	ECHO -- Script continuara al cerrar el activador --
 	start /WAIT "" "%~dp0aact\offline\AAct.exe"
-	GOTO driverpack
+	GOTO activation-check
 
 	:kmsonline
 	::Esta seccion abre los activadores
@@ -54,7 +54,43 @@
 	ECHO -- Abriendo activador ONLINE --
 	ECHO -- Script continuara al cerrar el activador --
 	start /WAIT "" "%~dp0aact\online\AAct_Network.exe"
-	GOTO driverpack
+	GOTO activation-check
+
+	:activation-check
+	call cscript //nologo %systemroot%\System32\slmgr.vbs /xpr | find /i "Notification" > nul
+	if not errorlevel 1 (
+  	 ECHO.
+     ECHO !! WINDOWS NO SE ACTIVO CORRECTAMENTE !!
+     ECHO == Se volvera a ejecutar el activador de Windows 10 ==
+     PAUSE
+     if %connected% == "0" (GOTO kmsonline) else (GOTO kmsoffline)
+	) else (
+   	   call cscript //nologo %systemroot%\System32\slmgr.vbs /xpr | find /i "Expire" > nul
+       if not errorlevel 1 (
+         ECHO.
+         ECHO == WINDOWS SE ACTIVO CORRECTAMENTE - KMS ==
+   	   ) else (
+      	  call cscript //nologo %systemroot%\System32\slmgr.vbs /xpr | find /i "permanently" > nul
+          if not errorlevel 1 (
+            ECHO.
+            ECHO == WINDOWS SE ACTIVO CORRECTAMENTE - LICENCIA DIGITAL ==
+      	  )
+   	   )
+    )
+
+	:: Seccion Licencia - Office 2019
+	IF NOT EXIST "%PROGRAMFILES%\Microsoft Office\Office16\ospp.vbs" ECHO !! Precaucion: OFFICE NO ESTA INSTALADO !! && PAUSE && EXIT
+	call cscript //nologo "%PROGRAMFILES%\Microsoft Office\Office16\ospp.vbs" /dstatus | find /i "LICENSED" > nul
+	if not errorlevel 1 (
+  	  ECHO == OFFICE SE ACTIVO CORRECTAMENTE ==
+  	  PAUSE
+  	  GOTO driverpack
+	) else (
+  	  ECHO.
+  	  ECHO !! Precaucion: OFFICE 2019 NO SE ACTIVO CORRECTAMENTE !!
+   	  ECHO == Se volvera a ejecutar el activador de Office ==
+   	  if %connected% == "0" (GOTO kmsonline) else (GOTO kmsoffline)
+	)
 
 	:driverpack
 	::Esta seccion abre DriverPack
@@ -288,21 +324,12 @@
 
 	:: COMENTARIOS ==================================================================================================
 
-	::COMANDOS
-	:: -getNameCPU&MaxClock wmic cpu get name, maxclockspeed
-	:: -
-
-	:: == GENERAL ==
-	:: CAMBIAR DIRECTORIOS RELATIVOS PARA EJECUTAR COMO ADMINISTRADOR
-	:: AGREGAR EN REMINDERS SOBRE LA BATERIA EN LAPTOPS
-	:: VER MANERA DE VERIFICAR QUE OFFICE Y WINDOWS ESTEN ACTIVADOS AL FINAL
-	:: RECORDATORIOS DE PRUEBAS DE HARDWARE
+	:: == Iteracion actual ==
+	:: VER MANERA DE VERIFICAR QUE OFFICE Y WINDOWS ESTEN ACTIVADOS AL FINAL // WIP
 	:: MODIFICAR PRUEBA DE SONIDO OFFLINE
-	:: AGREGAR INFORMACION DE TARJETA GRAFICA (NOMBRE, CANTIDAD DE ADAPTADORES, MEMORIA DEDICADA)
-	:: AGREGAR RESUMEN DE CONFIGURACION DE EQUIPO AL FINAL EN CONJUNTO A MARCA Y MODELO
+	:: AGREGAR INFORMACION DE TARJETA GRAFICA (NOMBRE, CANTIDAD DE ADAPTADORES, MEMORIA DEDICADA) // WIP
 	:: IMPLEMENTAR SI EQUIPO ES ESCRITORIO O LAPTOP (wmic systemenclosure get chassistypes)
 	:: AGREGAR CHECKLIST DE PASOS AL FINAL
-	:: AGREGAR CONFIRMACION SI SE QUIERE CONTINUAR PREPARACION SIN INTERNET
 
 	:: -NOTA: WINDOS 10 20H2 NO PERMITE INSTALAR DRIVERS POR DEVICE MANAGER
 
@@ -310,11 +337,7 @@
 	:: DESARROLLAR PRUEBAS MEDIA PARA ESCRITORIO (SALTAR MICROFONO)
 	:: AGREGAR JUEGOS PARA PRUEBA GAMER
 
-	:: == LAPTOP ==
-	:: PRUEBAS PARA MOUSE Y CLICKS (DETECTAR DOBLE CLICK EN LAPTOPS)
-
 	:: < BUGS - ESTA ITERACION >
-	:: - Realizar chequeo de red en mediatest (hacer una reconexion)
 
 	:: == Proxima iteracion ==
 	:: REVISAR COMPATIBILIDAD CON WINDOWS 7 (PROBABLEMENTE NUEVO SCRIPT)
@@ -332,6 +355,7 @@
 	:: AGREGAR CAMINO PARA VIEJA Y NUEVA IMAGEN (REMOVER DEVICE MANAGER EN NUEVA IMAGEN)
 	:: AGREGAR REDUNDACIA PARA PROCESOS
 	:: VERIFICAR MANERA DE OBTENER EL TAMAÑO DE MULTIPLES HDD EN SUMMARY
+	:: AGREGAR EN REMINDERS SOBRE LA BATERIA EN LAPTOPS
 
 
 	:: >> IDEAS <<

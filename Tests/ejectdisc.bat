@@ -32,7 +32,7 @@ if not errorlevel 1 (
    ECHO == OFFICE SE ACTIVO CORRECTAMENTE ==
 ) else (
    ECHO.
-   ECHO !! OFFICE 2019 NO SE ACTIVO CORRECTAMENTE !!
+   ECHO !! Precaucion: OFFICE 2019 NO SE ACTIVO CORRECTAMENTE !!
    ECHO == Se volvera a ejecutar el activador de Office ==
 )
 PAUSE
