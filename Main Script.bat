@@ -2,6 +2,7 @@
 	title Script Activador de RECLIM 0.1 BETA
 
 	:: INICIADOR DE VARIABLES
+	SET "alarm_warning=[console]::beep(1500,450);Start-Sleep -Milliseconds 150;[console]::beep(1500,450);Start-Sleep -Milliseconds 150;[console]::beep(1500,450)"
 
 	:intro
 	 For /L %%i in (10 -1 1)Do (
@@ -31,8 +32,9 @@
 	ECHO -- Verificando conexion a internet --
 	ping 8.8.8.8 > nul
 	if "%errorlevel%" == "0" SET connected="0" && ECHO -- Conexion detectada, continuando -- && goto kmsonline
-	ECHO !! Precaucion: Conexion a internet no detectada !!
-	TIMEOUT /T 3 /NOBREAK > nul
+	ECHO !! Precaucion: Conexion a internet no detectada !! && call powershell "%alarm_warning%"
+	CHOICE /C:SN /N /M ">> Desea volver a verificar la conexion? [S,N]: "
+	if "%errorlevel%" == "1" GOTO webtest
 	SET connected="1"
 	goto kmsoffline
 
@@ -98,16 +100,71 @@
   		)
 	if %found% == "Y" (ECHO -- Lectoras detectadas y abiertas --) else (ECHO -- No se detectaron lectoras --)
 	PAUSE
-	GOTO reminders
+	GOTO summary
 
-	:reminders
-	:: Esta seccion muestra los recordatorios de pruebas de hardware
+	:summary
+	:: En esta seccion se hace el resumen de configuracion del equipo
 	ECHO.
-	ECHO -- Antes de terminar, por favor revise los puertos USB y las salidas de video (VGA, HDMI, DP) --
+	ECHO 	   ---==== RESUMEN DEL SISTEMA ====---
+	ECHO.
+	:: CPU NAME W/ MAX CLOCK
+	for /f "tokens=2 delims==" %%A in ('wmic cpu get name /value') do (
+		SET "cpu_name=%%A"
+	)
+	ECHO ^>^> CPU:     %cpu_name%
+	ECHO.
+
+	:: RAM SIZE
+	SET "command=2^>nul systeminfo ^| findstr /b "Total Physical Memory:""
+	for /f "tokens=2 delims=:" %%A in ('%command%') do (
+		set "ram=%%A"
+	)
+	ECHO ^>^> RAM:%ram%
+	ECHO.
+
+	:: HDD
+	:: ESTE PARSING NO SIRVE PARA DISCOS DE 1TB PARA ARRIBA (REDISEÑAR)
+	for /f "tokens=2 delims==" %%A in ('wmic diskdrive get size /value') do (
+		SET "hdd_size=%%A"
+	)
+	ECHO ^>^> HDD:     %hdd_size:~0,3% GB
+	ECHO.
+
+	:: OS
+	for /f "tokens=2 delims==" %%A in ('wmic os get Caption /value') do (
+		SET "os=%%A"
+	)
+	ECHO ^>^> OS:      %os%
+	ECHO.
+
+	::GPU+VRAM (VRAM QUEDA PENDIENTE)
+	for /f "tokens=2 delims==" %%A in ('wmic path win32_VideoController get name /value') do (
+		SET "gpu=%%A"
+	)
+	ECHO ^>^> GPU:     %gpu%
+	ECHO.
+
+	:: Marca y Modelo
+	for /f "tokens=2 delims==" %%A in ('wmic computersystem get manufacturer /value') do (
+		SET "marca=%%A"
+	)
+	for /f "tokens=2 delims==" %%A in ('wmic computersystem get model /value') do (
+		SET "modelo=%%A"
+	)
+
+	ECHO ^>^> Modelo:  %marca% %modelo%
+	ECHO.
+	ECHO ^>^> Antes de terminar, por favor revise los puertos USB y las salidas de video (VGA, HDMI, DP) ^<^<
+	ECHO.
+	CHOICE /C:Y /CS /N /M "-- Presione Y mayuscula para continuar..."
+	ECHO. 
+	ECHO ^>^>^>^> El equipo se reiniciara en 5 segundos ^<^<^<^<
+	ECHO.
 	PAUSE
 	EXIT
 
-	:: == UTILIDADES ==
+
+	:: == UTILIDADES == =============================================================================================
 
 	:restoreactivators
 	:: Script para restaurar activadores
@@ -127,22 +184,13 @@
 	ECHO -- Verificando conexion a internet --
 	ping 1.1.1.1 > nul
 	if "%errorlevel%" == "0" (SET connected="0" && ECHO -- Conexion detectada, continuando -- && goto mediatest)
-	ECHO !! Precaucion: Conexion a internet no detectada !!
-	TIMEOUT /T 3 /NOBREAK > nul
+	ECHO !! Precaucion: Conexion a internet no detectada !! && call powershell "%alarm_warning%"
+	CHOICE /C:SN /N /M ">> Desea volver a verificar la conexion? [S,N]: "
+	if "%errorlevel%" == "1" GOTO mediacheck
 	SET connected="1"
-	goto mediatestoffline
+	goto mediatestoffline	
 
-	:fanfare
-	
-
-	:: == NO IMPLEMENTADO EN SCRIPT ==
-
-	:summary
-	:: En esta seccion se hace el resumen de configuracion del equipo
-	ECHO.
-	ECHO  === RESUMEN ===
-	ECHO.
-	CHOICE /C:Y /CS /M -- Presione "Y" para continuar...
+	:: == NO IMPLEMENTADO EN SCRIPT == ==============================================================================
 
 	:testsound-offline
 	ECHO.
@@ -170,7 +218,7 @@
 	for /f "tokens=2 delims=={}" %%A IN ('%command%') do ( 
 	2>nul set /a "chassNum=%%A"
 
-	:: == MENUS ==
+	:: == MENUS == ==================================================================================================
 
 	:main-menu
 	Cls
@@ -219,6 +267,8 @@
 	ECHO.
 	ECHO - [6]: Prueba de Lectora de CD
 	ECHO.
+	ECHO - [7]: Resumen del sistema
+	ECHO.
 	ECHO - [0]: REGRESAR A MENU PRINCIPAL
 	ECHO.
 	TIMEOUT 1 /nobreak > nul
@@ -229,13 +279,14 @@
 	IF %ERRORLEVEL% EQU 4 GOTO mediacheck
 	IF %ERRORLEVEL% EQU 5 GOTO cameratest
 	IF %ERRORLEVEL% EQU 6 GOTO cdtest
+	IF %ERRORLEVEL% EQU 7 GOTO summary
 	IF %ERRORLEVEL% EQU 8 GOTO main-menu
 
 
 
 
 
-	::COMENTARIOS
+	:: COMENTARIOS ==================================================================================================
 
 	::COMANDOS
 	:: -getNameCPU&MaxClock wmic cpu get name, maxclockspeed
@@ -251,6 +302,8 @@
 	:: AGREGAR RESUMEN DE CONFIGURACION DE EQUIPO AL FINAL EN CONJUNTO A MARCA Y MODELO
 	:: IMPLEMENTAR SI EQUIPO ES ESCRITORIO O LAPTOP (wmic systemenclosure get chassistypes)
 	:: AGREGAR CHECKLIST DE PASOS AL FINAL
+	:: AGREGAR CONFIRMACION SI SE QUIERE CONTINUAR PREPARACION SIN INTERNET
+
 	:: -NOTA: WINDOS 10 20H2 NO PERMITE INSTALAR DRIVERS POR DEVICE MANAGER
 
 	:: == ESCRITORIO ==
@@ -278,6 +331,7 @@
 	:: AGREGAR VARIABLES BANDERA PARA CAMBIAR EL FLUJO DE PREPARACION SEGUN TIPO DE PREPARACION Y EQUIPO
 	:: AGREGAR CAMINO PARA VIEJA Y NUEVA IMAGEN (REMOVER DEVICE MANAGER EN NUEVA IMAGEN)
 	:: AGREGAR REDUNDACIA PARA PROCESOS
+	:: VERIFICAR MANERA DE OBTENER EL TAMAÑO DE MULTIPLES HDD EN SUMMARY
 
 
 	:: >> IDEAS <<

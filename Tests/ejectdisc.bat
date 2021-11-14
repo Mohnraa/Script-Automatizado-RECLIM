@@ -1,5 +1,7 @@
 @ECHO OFF
 :: Seccion Licencia W10
+SET "alarm_warning=[console]::beep(1500,450);Start-Sleep -Milliseconds 150;[console]::beep(1500,450);Start-Sleep -Milliseconds 150;[console]::beep(1500,450)"
+
 call cscript //nologo %systemroot%\System32\slmgr.vbs /xpr | find /i "Notification" > nul
 if not errorlevel 1 (
    ECHO.
@@ -26,8 +28,12 @@ if not errorlevel 1 (
 IF NOT EXIST "%PROGRAMFILES%\Microsoft Office\Office16\ospp.vbs" GOTO office-not-installed
 call cscript //nologo "%PROGRAMFILES%\Microsoft Office\Office16\ospp.vbs" /dstatus | find /i "LICENSED" > nul
 if not errorlevel 1 (
-  ECHO.
-  ECHO == OFFICE SE ACTIVO CORRECTAMENTE ==
+   ECHO.
+   ECHO == OFFICE SE ACTIVO CORRECTAMENTE ==
+) else (
+   ECHO.
+   ECHO !! OFFICE 2019 NO SE ACTIVO CORRECTAMENTE !!
+   ECHO == Se volvera a ejecutar el activador de Office ==
 )
 PAUSE
 EXIT
