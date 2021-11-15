@@ -147,39 +147,29 @@
 	for /f "tokens=2 delims==" %%A in ('wmic cpu get name /value') do (
 		SET "cpu_name=%%A"
 	)
-	ECHO ^>^> CPU:     %cpu_name%
-	ECHO.
-
 	:: RAM SIZE
 	SET "command=2^>nul systeminfo ^| findstr /b "Total Physical Memory:""
 	for /f "tokens=2 delims=:" %%A in ('%command%') do (
 		set "ram=%%A"
 	)
-	ECHO ^>^> RAM:%ram%
-	ECHO.
-
 	:: HDD
-	:: ESTE PARSING NO SIRVE PARA DISCOS DE 1TB PARA ARRIBA (REDISEÑAR)
 	for /f "tokens=2 delims==" %%A in ('wmic diskdrive get size /value') do (
-		SET "hdd_size=%%A"
+		SET "hdd-raw=%%A"
+		GOTO out-loop
 	)
-	ECHO ^>^> HDD:     %hdd_size:~0,3% GB
-	ECHO.
-
+	:out-loop
+	call :strlen hdd-raw _lenght
+	IF %_lenght% EQU 14 SET "hdd_size=%hdd-raw:~0,4%"
+	IF %_lenght% EQU 13 SET "hdd_size=%hdd-raw:~0,3%"
+	IF %_lenght% EQU 12 SET "hdd_size=%hdd-raw:~0,2%"
 	:: OS
 	for /f "tokens=2 delims==" %%A in ('wmic os get Caption /value') do (
 		SET "os=%%A"
 	)
-	ECHO ^>^> OS:      %os%
-	ECHO.
-
 	::GPU+VRAM (VRAM QUEDA PENDIENTE)
 	for /f "tokens=2 delims==" %%A in ('wmic path win32_VideoController get name /value') do (
 		SET "gpu=%%A"
 	)
-	ECHO ^>^> GPU:     %gpu%
-	ECHO.
-
 	:: Marca y Modelo
 	for /f "tokens=2 delims==" %%A in ('wmic computersystem get manufacturer /value') do (
 		SET "marca=%%A"
@@ -188,13 +178,27 @@
 		SET "modelo=%%A"
 	)
 
+	ECHO ^>^> CPU:     %cpu_name%
+	ECHO.
+	ECHO ^>^> RAM:%ram%
+	ECHO.
+	ECHO ^>^> HDD:     %hdd_size% GB
+	ECHO.
+	ECHO ^>^> OS:      %os%
+	ECHO.
+	ECHO ^>^> GPU:     %gpu%
+	ECHO.
 	ECHO ^>^> Modelo:  %marca% %modelo%
 	ECHO.
 	ECHO ^>^> Antes de terminar, por favor revise los puertos USB y las salidas de video (VGA, HDMI, DP) ^<^<
 	ECHO.
-	CHOICE /C:Y /CS /N /M "-- Presione Y mayuscula para continuar..."
+	CHOICE /C:Y /CS /N /M ">> Presione Y mayuscula para continuar..."
 	ECHO. 
-	ECHO ^>^>^>^> El equipo se reiniciara en 5 segundos ^<^<^<^<
+	ECHO. 
+	ECHO. 
+	ECHO. 
+	ECHO. 
+	ECHO 				   ^>^>^>^> El equipo se reiniciara en 5 segundos ^<^<^<^<
 	ECHO.
 	PAUSE
 	EXIT
@@ -224,7 +228,7 @@
 	CHOICE /C:SN /N /M ">> Desea volver a verificar la conexion? [S,N]: "
 	if "%errorlevel%" == "1" GOTO mediacheck
 	SET connected="1"
-	goto mediatestoffline	
+	goto mediatestoffline
 
 	:: == NO IMPLEMENTADO EN SCRIPT == ==============================================================================
 
@@ -318,8 +322,19 @@
 	IF %ERRORLEVEL% EQU 7 GOTO summary
 	IF %ERRORLEVEL% EQU 8 GOTO main-menu
 
-
-
+	:: UTILIDADES EOF
+	goto:eof
+	:strlen  StrVar  [RtnVar]
+  	 setlocal EnableDelayedExpansion
+  	 set "s=#!%~1!"
+  	 set "len=0"
+  	 for %%N in (4096 2048 1024 512 256 128 64 32 16 8 4 2 1) do (
+  	   if "!s:~%%N,1!" neq "" (
+   	    set /a "len+=%%N"
+   	    set "s=!s:~%%N!"
+   	   )
+  	 )
+  	 endlocal&if "%~2" neq "" (set %~2=%len%) else echo %len%	
 
 
 	:: COMENTARIOS ==================================================================================================
