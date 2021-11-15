@@ -1,6 +1,9 @@
 	@ECHO OFF
 	title Script Activador de RECLIM 0.1 BETA
 
+	:: Ejecutar como Administrador al abrir
+	cd /d "%~dp0" && ( if exist "%temp%\getadmin.vbs" del "%temp%\getadmin.vbs" ) && fsutil dirty query %systemdrive% 1>nul 2>nul || (  cmd /u /c echo Set UAC = CreateObject^("Shell.Application"^) : UAC.ShellExecute "cmd.exe", "/k cd ""%~sdp0"" && ""%~s0""", "", "runas", 1 >> "%temp%\getadmin.vbs" && "%temp%\getadmin.vbs" && exit /B )
+
 	:: INICIADOR DE VARIABLES
 	SET "alarm_warning=[console]::beep(1500,450);Start-Sleep -Milliseconds 150;[console]::beep(1500,450);Start-Sleep -Milliseconds 150;[console]::beep(1500,450)"
 
