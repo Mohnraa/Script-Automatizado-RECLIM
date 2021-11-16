@@ -36,7 +36,7 @@
 	ping 8.8.8.8 > nul
 	if "%errorlevel%" == "0" SET connected="0" && ECHO -- Conexion detectada, continuando -- && goto kmsonline
 	ECHO !! Precaucion: Conexion a internet no detectada !! && call powershell "%alarm_warning%"
-	CHOICE /C:SN /N /M ">> Desea volver a verificar la conexion? [S,N]: "
+	CHOICE /C:SN /N /T 10 /D S /M ">> Desea volver a verificar la conexion? [S,N]: "
 	if "%errorlevel%" == "1" GOTO webtest
 	SET connected="1"
 	goto kmsoffline
@@ -224,10 +224,10 @@
 	ECHO.
 	ECHO -- Activadores desaparecidos, restaurando...
 	tar -xf "%~dp0aact\Respaldo.zip" -C "%~dp0aact" > nul
-	IF NOT EXIST "%~dp0aact\online\AAct_Network.exe" ECHO !! ERROR: RESTAURACION FALLIDA, REINTENTANDO !! && TIMEOUT 4 /nobreak > nul && GOTO restoreactivators
-	IF NOT EXIST "%~dp0aact\offline\AAct.exe" ECHO !! ERROR: RESTAURACION FALLIDA, REINTENTANDO !! && TIMEOUT 4 /nobreak > nul && GOTO restoreactivators	
+	IF NOT EXIST "%~dp0aact\online\AAct_Network.exe" ECHO !! ERROR: RESTAURACION FALLIDA, REINTENTANDO !! && TIMEOUT 3 /nobreak > nul && GOTO restoreactivators
+	IF NOT EXIST "%~dp0aact\offline\AAct.exe" ECHO !! ERROR: RESTAURACION FALLIDA, REINTENTANDO !! && TIMEOUT 3 /nobreak > nul && GOTO restoreactivators	
 	ECHO -- Restauracion completa --
-	TIMEOUT 4 /nobreak > nul
+	TIMEOUT 3 /nobreak > nul
 	if %connected% == "0" GOTO kmsonline
 	GOTO kmsoffline
 
@@ -238,7 +238,7 @@
 	ping 1.1.1.1 > nul
 	if "%errorlevel%" == "0" (SET connected="0" && ECHO -- Conexion detectada, continuando -- && goto mediatest)
 	ECHO !! Precaucion: Conexion a internet no detectada !! && call powershell "%alarm_warning%"
-	CHOICE /C:SN /N /M ">> Desea volver a verificar la conexion? [S,N]: "
+	CHOICE /C:SN /N /T 10 /D S /M ">> Desea volver a verificar la conexion? [S,N]: "
 	if "%errorlevel%" == "1" GOTO mediacheck
 	SET connected="1"
 	goto mediatestoffline
@@ -283,6 +283,9 @@
 	set "command=2^>nul WMIC SystemEnclosure Get ChassisTypes /value" 
 	for /f "tokens=2 delims=={}" %%A IN ('%command%') do ( 
 	2>nul set /a "chassNum=%%A"
+
+	:install-apps
+	
 
 	:: == MENUS == ==================================================================================================
 
