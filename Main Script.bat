@@ -143,28 +143,32 @@
 
 	:summary
 	:: En esta seccion se hace el resumen de configuracion del equipo
-	ECHO.
-	ECHO 	   ---==== RESUMEN DEL SISTEMA ====---
-	ECHO.
-	:: CPU NAME W/ MAX CLOCK
+	:: 1ra Seccion: Recopilar informacion
+	:: CPU NAME
 	for /f "tokens=2 delims==" %%A in ('wmic cpu get name /value') do (
 		SET "cpu_name=%%A"
 	)
-	:: RAM SIZE
-	SET "command=2^>nul systeminfo ^| findstr /b "Total Physical Memory:""
-	for /f "tokens=2 delims=:" %%A in ('%command%') do (
-		set "ram=%%A"
+	:: RAM
+	::SET "command=2^>nul systeminfo ^| findstr /b "Total Physical Memory:""
+	::for /f "tokens=2 delims=:" %%A in ('%command%') do (
+	::	set "ram=%%A"
+	::)
+	for /f "tokens=2 delims==" %%A in ('wmic memorychip get capacity /value') do (
+		SET "ram-raw=%%A"
 	)
+	call :strlen ram-raw _lenghtram
+	IF %_lenghtram% EQU 12 SET "ram=%ram-raw:~0,2%"
+	IF %_lenghtram% EQU 11 SET "ram=%ram-raw:~0,1%"
 	:: HDD
 	for /f "tokens=2 delims==" %%A in ('wmic diskdrive get size /value') do (
 		SET "hdd-raw=%%A"
-		GOTO out-loop
+		GOTO out-loop-hdd
 	)
-	:out-loop
-	call :strlen hdd-raw _lenght
-	IF %_lenght% EQU 14 SET "hdd_size=%hdd-raw:~0,4%"
-	IF %_lenght% EQU 13 SET "hdd_size=%hdd-raw:~0,3%"
-	IF %_lenght% EQU 12 SET "hdd_size=%hdd-raw:~0,2%"
+	:out-loop-hdd
+	call :strlen hdd-raw _lenghthdd
+	IF %_lenghthdd% EQU 14 SET "hdd_size=%hdd-raw:~0,4%"
+	IF %_lenghthdd% EQU 13 SET "hdd_size=%hdd-raw:~0,3%"
+	IF %_lenghthdd% EQU 12 SET "hdd_size=%hdd-raw:~0,2%"
 	:: OS
 	for /f "tokens=2 delims==" %%A in ('wmic os get Caption /value') do (
 		SET "os=%%A"
@@ -180,10 +184,14 @@
 	for /f "tokens=2 delims==" %%A in ('wmic computersystem get model /value') do (
 		SET "modelo=%%A"
 	)
-
+	:: 2da seccion: Mostrar informacion
+	Cls
+	ECHO.
+	ECHO 	 		                   ---==== RESUMEN DEL SISTEMA ====---
+	ECHO.
 	ECHO ^>^> CPU:     %cpu_name%
 	ECHO.
-	ECHO ^>^> RAM:%ram%
+	ECHO ^>^> RAM:     %ram% GB
 	ECHO.
 	ECHO ^>^> HDD:     %hdd_size% GB
 	ECHO.
@@ -193,7 +201,9 @@
 	ECHO.
 	ECHO ^>^> Modelo:  %marca% %modelo%
 	ECHO.
-	ECHO ^>^> Antes de terminar, por favor revise los puertos USB y las salidas de video (VGA, HDMI, DP) ^<^<
+	ECHO ======================================================================================================
+	ECHO    ^>^> Antes de terminar, por favor revise los puertos USB y las salidas de video (VGA, HDMI, DP) ^<^<
+	ECHO ======================================================================================================
 	ECHO.
 	CHOICE /C:Y /CS /N /M ">> Presione Y mayuscula para continuar..."
 	ECHO. 
@@ -232,6 +242,19 @@
 	if "%errorlevel%" == "1" GOTO mediacheck
 	SET connected="1"
 	goto mediatestoffline
+
+	:strlen  StrVar  [RtnVar]
+  setlocal EnableDelayedExpansion
+  set "s=#!%~1!"
+  set "len=0"
+  for %%N in (4096 2048 1024 512 256 128 64 32 16 8 4 2 1) do (
+    if "!s:~%%N,1!" neq "" (
+     set /a "len+=%%N"
+     set "s=!s:~%%N!"
+    )
+  )
+  endlocal&if "%~2" neq "" (set %~2=%len%) else echo %len%	
+  GOTO :eof	
 
 	:: == NO IMPLEMENTADO EN SCRIPT == ==============================================================================
 
@@ -284,7 +307,7 @@
 	ECHO - [0]: SALIR
 	ECHO.
 	TIMEOUT 1 /nobreak > nul
-	CHOICE /c:123450 /N /M "Opcion Seleccionada: "
+	CHOICE /c:123450 /N /M " >> Opcion Seleccionada: "
 	IF %ERRORLEVEL% EQU 6 EXIT
 	IF %ERRORLEVEL% EQU 1 GOTO antivirus
 	IF %ERRORLEVEL% EQU 2 GOTO antivirus
@@ -315,7 +338,7 @@
 	ECHO - [0]: REGRESAR A MENU PRINCIPAL
 	ECHO.
 	TIMEOUT 1 /nobreak > nul
-	CHOICE /c:12345670 /N /M "Opcion Seleccionada: "
+	CHOICE /c:12345670 /N /M " >> Opcion Seleccionada: "
 	IF %ERRORLEVEL% EQU 1 GOTO antivirus
 	IF %ERRORLEVEL% EQU 2 GOTO webtest
 	IF %ERRORLEVEL% EQU 3 GOTO driverpack
@@ -326,18 +349,6 @@
 	IF %ERRORLEVEL% EQU 8 GOTO main-menu
 
 	:: UTILIDADES EOF
-	goto:eof
-	:strlen  StrVar  [RtnVar]
-  	 setlocal EnableDelayedExpansion
-  	 set "s=#!%~1!"
-  	 set "len=0"
-  	 for %%N in (4096 2048 1024 512 256 128 64 32 16 8 4 2 1) do (
-  	   if "!s:~%%N,1!" neq "" (
-   	    set /a "len+=%%N"
-   	    set "s=!s:~%%N!"
-   	   )
-  	 )
-  	 endlocal&if "%~2" neq "" (set %~2=%len%) else echo %len%	
 
 
 	:: COMENTARIOS ==================================================================================================
@@ -374,6 +385,9 @@
 	:: AGREGAR REDUNDACIA PARA PROCESOS
 	:: VERIFICAR MANERA DE OBTENER EL TAMAÑO DE MULTIPLES HDD EN SUMMARY
 	:: AGREGAR EN REMINDERS SOBRE LA BATERIA EN LAPTOPS
+
+	:: EXPLORAR A DETALLE
+	:: REPORTAR CANTIDAD DE MODULOS Y SU CAPACIDAD (wmic memorychip get capacity)
 
 
 	:: >> IDEAS <<
