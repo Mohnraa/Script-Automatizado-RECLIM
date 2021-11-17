@@ -26,7 +26,8 @@
 	ECHO -- Mantenga la ventana abierta durante el proceso --
 	ECHO -- Desactive Proteccion en tiempo real y proteccion en la nube para continuar --
 	start /WAIT windowsdefender:
-	PAUSE
+	ECHO ^>^> Presione cualquier tecla para continuar... 
+	PAUSE>nul
 	GOTO webtest
 
 	:webtest
@@ -34,7 +35,7 @@
 	ECHO.
 	ECHO -- Verificando conexion a internet --
 	ping 8.8.8.8 > nul
-	if "%errorlevel%" == "0" SET connected="0" && ECHO -- Conexion detectada, continuando -- && goto kmsonline
+	if "%errorlevel%" == "0" SET connected="0" && ECHO == Conexion detectada, continuando == && goto kmsonline
 	ECHO !! Precaucion: Conexion a internet no detectada !! && call powershell "%alarm_warning%"
 	CHOICE /C:SN /N /T 10 /D S /M ">> Desea volver a verificar la conexion? [S,N]: "
 	if "%errorlevel%" == "1" GOTO webtest
@@ -65,7 +66,6 @@
   	 ECHO.
      ECHO !! WINDOWS NO SE ACTIVO CORRECTAMENTE !!
      ECHO == Se volvera a ejecutar el activador de Windows 10 ==
-     PAUSE
      if %connected% == "0" (GOTO kmsonline) else (GOTO kmsoffline)
 	) else (
    	   call cscript //nologo %systemroot%\System32\slmgr.vbs /xpr | find /i "Expire" > nul
@@ -86,7 +86,6 @@
 	call cscript //nologo "%PROGRAMFILES%\Microsoft Office\Office16\ospp.vbs" /dstatus | find /i "LICENSED" > nul
 	if not errorlevel 1 (
   	  ECHO == OFFICE SE ACTIVO CORRECTAMENTE ==
-  	  PAUSE
   	  GOTO driverpack
 	) else (
   	  ECHO.
@@ -117,7 +116,8 @@
 	ECHO -- Abriendo prueba de audio y microfono OFFLINE --
 	start control mmsys.cpl sounds
 	ECHO -- Prueba ha sido abierta --
-	PAUSE
+	ECHO ^>^> Presione cualquier tecla para continuar... 
+	PAUSE>nul
 	GOTO cameratest
 	
 	:cameratest
@@ -126,7 +126,8 @@
 	ECHO -- Abriendo aplicacion de camara --
 	start /WAIT microsoft.windows.camera:
 	ECHO -- Camara ha sido abierta --
-	PAUSE
+	ECHO ^>^> Presione cualquier tecla para continuar... 
+	PAUSE>nul
 	GOTO cdtest
 
 	:cdtest
@@ -138,33 +139,42 @@
   		if [%%j]==[5] SET found="Y" && CALL powershell "(new-object -COM Shell.Application).NameSpace(17).ParseName('%%i').InvokeVerb('Eject')"
   		)
 	if %found% == "Y" (ECHO -- Lectoras detectadas y abiertas --) else (ECHO -- No se detectaron lectoras --)
-	PAUSE
+	ECHO ^>^> Presione cualquier tecla para continuar... 
+	PAUSE>nul
 	GOTO summary
 
 	:summary
 	:: En esta seccion se hace el resumen de configuracion del equipo
 	:: 1ra Seccion: Recopilar informacion
-	:: CPU NAME
+	:: CPU & Velocidad
 	for /f "tokens=2 delims==" %%A in ('wmic cpu get name /value') do (
 		SET "cpu_name=%%A"
 	)
-	:: RAM
-	::SET "command=2^>nul systeminfo ^| findstr /b "Total Physical Memory:""
-	::for /f "tokens=2 delims=:" %%A in ('%command%') do (
-	::	set "ram=%%A"
-	::)
-	for /f "tokens=2 delims==" %%A in ('wmic memorychip get capacity /value') do (
+	for /f "tokens=2 delims==" %%A in ('wmic cpu get maxclockspeed /value') do (
+		SET "cpu_freq=%%A"
+	)
+	SET "cpu_name=%cpu_name% @ %cpu_freq:~0,1%.%cpu_freq:~1,1% Ghz"
+	:: RAM 
+	for /f "tokens=2 delims==" %%A in ('wmic ComputerSystem get TotalPhysicalMemory /value') do (
 		SET "ram-raw=%%A"
 	)
 	call :strlen ram-raw _lenghtram
-	IF %_lenghtram% EQU 12 SET "ram=%ram-raw:~0,2%"
-	IF %_lenghtram% EQU 11 SET "ram=%ram-raw:~0,1%"
+	IF %_lenghtram% EQU 12 SET "ram-dec=%ram-raw:~0,2%.%ram-raw:~2,1%"
+	IF %_lenghtram% EQU 11 SET "ram-dec=%ram-raw:~0,1%.%ram-raw:~1,1%"
+	for /f "tokens=1,2 delims=." %%a  in ("%ram-dec%") do (
+  		set first_part=%%a
+ 		set second_part=%%b
+	)
+	set second_part=%second_part:~0,1%
+	if defined second_part if %second_part% GEQ 5 ( 
+    	set /a ram=%first_part%+1
+	) else ( 
+   		set /a ram=%first_part%
+	)
 	:: HDD
 	for /f "tokens=2 delims==" %%A in ('wmic diskdrive get size /value') do (
 		SET "hdd-raw=%%A"
-		GOTO out-loop-hdd
 	)
-	:out-loop-hdd
 	call :strlen hdd-raw _lenghthdd
 	IF %_lenghthdd% EQU 14 SET "hdd_size=%hdd-raw:~0,4%"
 	IF %_lenghthdd% EQU 13 SET "hdd_size=%hdd-raw:~0,3%"
@@ -236,7 +246,7 @@
 	ECHO.
 	ECHO -- Verificando conexion a internet --
 	ping 1.1.1.1 > nul
-	if "%errorlevel%" == "0" (SET connected="0" && ECHO -- Conexion detectada, continuando -- && goto mediatest)
+	if "%errorlevel%" == "0" (SET connected="0" && ECHO == Conexion detectada, continuando == && goto mediatest)
 	ECHO !! Precaucion: Conexion a internet no detectada !! && call powershell "%alarm_warning%"
 	CHOICE /C:SN /N /T 10 /D S /M ">> Desea volver a verificar la conexion? [S,N]: "
 	if "%errorlevel%" == "1" GOTO mediacheck
@@ -244,17 +254,17 @@
 	goto mediatestoffline
 
 	:strlen  StrVar  [RtnVar]
-  setlocal EnableDelayedExpansion
-  set "s=#!%~1!"
-  set "len=0"
-  for %%N in (4096 2048 1024 512 256 128 64 32 16 8 4 2 1) do (
-    if "!s:~%%N,1!" neq "" (
-     set /a "len+=%%N"
-     set "s=!s:~%%N!"
+  	setlocal EnableDelayedExpansion
+  	set "s=#!%~1!"
+  	set "len=0"
+  	for %%N in (4096 2048 1024 512 256 128 64 32 16 8 4 2 1) do (
+   	 if "!s:~%%N,1!" neq "" (
+   	  set /a "len+=%%N"
+      set "s=!s:~%%N!"
+     )
     )
-  )
-  endlocal&if "%~2" neq "" (set %~2=%len%) else echo %len%	
-  GOTO :eof	
+    endlocal&if "%~2" neq "" (set %~2=%len%) else echo %len%	
+    GOTO :eof	
 
 	:: == NO IMPLEMENTADO EN SCRIPT == ==============================================================================
 
@@ -262,7 +272,7 @@
 	ECHO.
 	ECHO -- Reproduciendo sonido --
 	call powershell [console]::beep(1500,1000)
-	CHOICE /C:YRr /CS /M "Presione R para repetir el sonido o Y para continuar"
+	CHOICE /C:YRr /CS /M ">> Presione R para repetir el sonido o Y para continuar"
 	if %ERRORLEVEL% EQU 1 GOTO reminders
 	if %ERRORLEVEL% EQU 2 GOTO testsound-offline
 	if %ERRORLEVEL% EQU 3 GOTO testsound-offline
@@ -370,6 +380,8 @@
 	:: AGREGAR JUEGOS PARA PRUEBA GAMER
 
 	:: < BUGS - ESTA ITERACION >
+	:: Al recopilar informacion de HDD, este toma solo la capacidad de USB (usar wmic diskdrive get size,name)
+	:: (Intentar ignorar discos menores de 32 GB), (Intentar detectar \\.\PHYSICALDRIVE0, luego capturar capacidad)
 
 	:: == Proxima iteracion ==
 	:: REVISAR COMPATIBILIDAD CON WINDOWS 7 (PROBABLEMENTE NUEVO SCRIPT)
