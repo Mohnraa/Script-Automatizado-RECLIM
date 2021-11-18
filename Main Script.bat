@@ -61,21 +61,21 @@
 	GOTO activation-check
 
 	:activation-check
+	::Esta seccion verifica si Windows y Office 2019 esten activados
+	ECHO.
+	ECHO -- Verificando activacion --
 	call cscript //nologo %systemroot%\System32\slmgr.vbs /xpr | find /i "Notification" > nul
 	if not errorlevel 1 (
-  	 ECHO.
      ECHO !! WINDOWS NO SE ACTIVO CORRECTAMENTE !!
      ECHO == Se volvera a ejecutar el activador de Windows 10 ==
      if %connected% == "0" (GOTO kmsonline) else (GOTO kmsoffline)
 	) else (
    	   call cscript //nologo %systemroot%\System32\slmgr.vbs /xpr | find /i "Expire" > nul
        if not errorlevel 1 (
-         ECHO.
          ECHO == WINDOWS SE ACTIVO CORRECTAMENTE - KMS ==
    	   ) else (
       	  call cscript //nologo %systemroot%\System32\slmgr.vbs /xpr | find /i "permanently" > nul
           if not errorlevel 1 (
-            ECHO.
             ECHO == WINDOWS SE ACTIVO CORRECTAMENTE - LICENCIA DIGITAL ==
       	  )
    	   )
@@ -89,7 +89,7 @@
   	  GOTO driverpack
 	) else (
   	  ECHO.
-  	  ECHO !! Precaucion: OFFICE 2019 NO SE ACTIVO CORRECTAMENTE !!
+  	  ECHO !! OFFICE 2019 NO SE ACTIVO CORRECTAMENTE !!
    	  ECHO == Se volvera a ejecutar el activador de Office ==
    	  if %connected% == "0" (GOTO kmsonline) else (GOTO kmsoffline)
 	)
@@ -367,10 +367,9 @@
 	:: COMENTARIOS ==================================================================================================
 
 	:: == Iteracion actual ==
-	:: VER MANERA DE VERIFICAR QUE OFFICE Y WINDOWS ESTEN ACTIVADOS AL FINAL // WIP
 	:: MODIFICAR PRUEBA DE SONIDO OFFLINE
 	:: AGREGAR INFORMACION DE TARJETA GRAFICA (NOMBRE, CANTIDAD DE ADAPTADORES, MEMORIA DEDICADA) // WIP
-	:: IMPLEMENTAR SI EQUIPO ES ESCRITORIO O LAPTOP (wmic systemenclosure get chassistypes)
+
 	:: AGREGAR CHECKLIST DE PASOS AL FINAL
 
 	:: -NOTA: WINDOS 10 20H2 NO PERMITE INSTALAR DRIVERS POR DEVICE MANAGER
@@ -394,12 +393,13 @@
 	:: LLEVAR UN SEGUIMIENTO DE PASOS, AGREGAR RECUPERACION DE CIERRE INESPERADO, DAR OPCIONES DE RECUPERACIONES
 	:: UN NOMBRE VRGS PARA EL SCRIPT
 	:: AGREGAR MODO RAPIDO DE PREPARACION DE EQUIPOS
-	:: VERIFICAR SI LOS ACTIVADORES HICIERON SU TRABAJO, SI NO REABRIRLOS
 	:: AGREGAR VARIABLES BANDERA PARA CAMBIAR EL FLUJO DE PREPARACION SEGUN TIPO DE PREPARACION Y EQUIPO
 	:: AGREGAR CAMINO PARA VIEJA Y NUEVA IMAGEN (REMOVER DEVICE MANAGER EN NUEVA IMAGEN)
 	:: AGREGAR REDUNDACIA PARA PROCESOS
 	:: VERIFICAR MANERA DE OBTENER EL TAMAÑO DE MULTIPLES HDD EN SUMMARY
 	:: AGREGAR EN REMINDERS SOBRE LA BATERIA EN LAPTOPS
+	:: CAMBIAR FORMATO DE PROCEDIMIENTOS (Usar eof para terminar llamados y estructurar facilmente procedimientos)
+	:: IMPLEMENTAR SI EQUIPO ES ESCRITORIO O LAPTOP (wmic systemenclosure get chassistypes)
 
 	:: EXPLORAR A DETALLE
 	:: REPORTAR CANTIDAD DE MODULOS Y SU CAPACIDAD (wmic memorychip get capacity)
