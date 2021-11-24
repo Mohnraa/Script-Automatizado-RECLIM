@@ -106,28 +106,23 @@
 
 	:mediatest
 	ECHO.
-	:: Esta seccion abre paginas de prueba de teclado, microfno y bocinas
-	ECHO -- Probando sonido --
-	ECHO -- Script continuara al cerrar el navegador --
-	start /WAIT chrome /incognito "https://www.onlinemictest.com/es/prueba-de-teclado/" " https://es.mictests.com" "https://www.youtube.com"
-	GOTO cameratest
+	ECHO -- Reproduciendo sonido --
+	:play-offline
+	call powershell "[console]::beep(1375,100) ; [console]::beep(1475,100) ; [console]::beep(1575,100)"
+	CHOICE /C:YR /N /M "Presione R para repetir el sonido o Y para continuar"
+	if %ERRORLEVEL% EQU 1 ECHO ^>^> Presione cualquier tecla para continuar... 
+	if %ERRORLEVEL% EQU 2 GOTO play
+	PAUSE>nul
+	GOTO cdtest
 
 	:mediatestoffline
 	ECHO.
-	ECHO -- Abriendo prueba de audio y microfono OFFLINE --
-	start control mmsys.cpl sounds
-	ECHO -- Prueba ha sido abierta --
-	ECHO ^>^> Presione cualquier tecla para continuar... 
-	PAUSE>nul
-	GOTO cameratest
-
-	:cameratest
-	ECHO.
-	:: Esta seccion abre el programa de camara
-	ECHO -- Abriendo aplicacion de camara --
-	start /WAIT microsoft.windows.camera:
-	ECHO -- Camara ha sido abierta --
-	ECHO ^>^> Presione cualquier tecla para continuar... 
+	ECHO -- Reproduciendo sonido --
+	:play-offline
+	call powershell "[console]::beep(1375,100) ; [console]::beep(1475,100) ; [console]::beep(1575,100)"
+	CHOICE /C:YR /N /M "Presione R para repetir el sonido o Y para continuar"
+	if %ERRORLEVEL% EQU 1 ECHO ^>^> Presione cualquier tecla para continuar... 
+	if %ERRORLEVEL% EQU 2 GOTO play
 	PAUSE>nul
 	GOTO cdtest
 
