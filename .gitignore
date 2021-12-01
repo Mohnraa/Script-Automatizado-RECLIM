@@ -2,3 +2,7 @@
 aact/
 
 DriverPack.G/
+
+*.exe
+
+Apps/Apps-Backup.zip

@@ -20,7 +20,7 @@ if defined second_part if %second_part% GEQ 5 (
     set /a ram=%first_part%
 )
 
-echo ^>^> %ram%
+echo ^>^> %ram% GB RAM
 PAUSE
 EXIT
 
