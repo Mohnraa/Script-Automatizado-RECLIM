@@ -37,7 +37,7 @@
 	ECHO -- Verificando conexion a internet --
 	ping 8.8.8.8 > nul
 	if "%errorlevel%" == "0" SET connected="0" && ECHO == Conexion detectada, continuando == && goto kmsonline
-	ECHO !! Precaucion: Conexion a internet no detectada !! && call powershell "%alarm_warning%"
+	ECHO // Conexion a internet no detectada \\ & call powershell "%alarm_warning%"
 	CHOICE /C:SN /N /T 10 /D S /M ">> Desea volver a verificar la conexion? [S,N]: "
 	if "%errorlevel%" == "1" GOTO webtest
 	SET connected="1"
@@ -67,7 +67,7 @@
 	ECHO -- Verificando activacion --
 	call cscript //nologo %systemroot%\System32\slmgr.vbs /xpr | find /i "Notification" > nul
 	if not errorlevel 1 (
-     ECHO !! WINDOWS NO SE ACTIVO CORRECTAMENTE !!
+     ECHO // WINDOWS NO SE ACTIVO CORRECTAMENTE \\
      ECHO == Se volvera a ejecutar el activador de Windows 10 ==
      if %connected% == "0" (GOTO kmsonline) else (GOTO kmsoffline)
 	) else (
@@ -90,7 +90,7 @@
   	  GOTO driverpack
 	) else (
   	  ECHO.
-  	  ECHO !! OFFICE 2019 NO SE ACTIVO CORRECTAMENTE !!
+  	  ECHO // OFFICE 2019 NO SE ACTIVO CORRECTAMENTE \\
    	  ECHO == Se volvera a ejecutar el activador de Office ==
    	  if %connected% == "0" (GOTO kmsonline) else (GOTO kmsoffline)
 	)
@@ -145,6 +145,9 @@
 	GOTO summary
 
 	:summary
+	ECHO.
+	ECHO -- Recopilando informacion del sistema, por favor espere... --
+	ECHO.
 	:: En esta seccion se hace el resumen de configuracion del equipo
 	:: 1ra Seccion: Recopilar informacion
 	:: CPU & Velocidad
@@ -154,8 +157,8 @@
 	for /f "tokens=2 delims==" %%A in ('wmic cpu get maxclockspeed /value') do (
 		SET "cpu_freq=%%A"
 	)
-	ECHO %cpu_name% | findstr /C: "Intel" > nul
-	IF ERRORLEVEL 1 (SET "cpu_name=%cpu_name%") else (SET "cpu_name=%cpu_name% @ %cpu_freq:~0,1%.%cpu_freq:~1,2% Ghz")
+	ECHO %cpu_name% | findstr /C:"Intel" > nul
+	IF !ERRORLEVEL! EQU 1 SET "cpu_name=%cpu_name% @ %cpu_freq:~0,1%.%cpu_freq:~1,2% Ghz"
 	:: RAM 
 	for /f "tokens=2 delims==" %%A in ('wmic ComputerSystem get TotalPhysicalMemory /value') do (
 		SET "ram-raw=%%A"
@@ -244,11 +247,11 @@
 	:restoreactivators
 	:: Script para restaurar activadores
 	ECHO.
-	ECHO -- Activadores desaparecidos, restaurando...
+	ECHO -- Activadores desaparecidos, restaurando... --
 	tar -xf "%~dp0aact\Respaldo.zip" -C "%~dp0aact" > nul
-	IF NOT EXIST "%~dp0aact\online\AAct_Network.exe" ECHO !! ERROR: RESTAURACION FALLIDA, REINTENTANDO !! && TIMEOUT 3 /nobreak > nul && GOTO restoreactivators
-	IF NOT EXIST "%~dp0aact\offline\AAct.exe" ECHO !! ERROR: RESTAURACION FALLIDA, REINTENTANDO !! && TIMEOUT 3 /nobreak > nul && GOTO restoreactivators	
-	ECHO -- Restauracion completa --
+	IF NOT EXIST "%~dp0aact\online\AAct_Network.exe" ECHO // ERROR: RESTAURACION FALLIDA, REINTENTANDO \\ && TIMEOUT 3 /nobreak > nul && GOTO restoreactivators
+	IF NOT EXIST "%~dp0aact\offline\AAct.exe" ECHO // ERROR: RESTAURACION FALLIDA, REINTENTANDO \\ && TIMEOUT 3 /nobreak > nul && GOTO restoreactivators	
+	ECHO == Restauracion completa ==
 	TIMEOUT 3 /nobreak > nul
 	if %connected% == "0" GOTO kmsonline
 	GOTO kmsoffline
@@ -259,11 +262,23 @@
 	ECHO -- Verificando conexion a internet --
 	ping 1.1.1.1 > nul
 	if "%errorlevel%" == "0" (SET connected="0" && ECHO == Conexion detectada, continuando == && goto mediatest)
-	ECHO !! Precaucion: Conexion a internet no detectada !! && call powershell "%alarm_warning%"
+	ECHO // PRECAUCION: CONEXION A INTERNET NO DETECTADA \\ & call powershell "%alarm_warning%"
 	CHOICE /C:SN /N /T 10 /D S /M ">> Desea volver a verificar la conexion? [S,N]: "
-	if "%errorlevel%" == "1" GOTO mediacheck
+	if "!errorlevel!" == "1" GOTO mediacheck
 	SET connected="1"
 	goto mediatestoffline
+
+	:dp-netcheck
+	:: Esta seccion verifica si existe una conexion a internet
+	ECHO.
+	ECHO -- Verificando conexion a internet --
+	ping 1.1.1.1 > nul
+	if "%errorlevel%" == "0" (SET connected="0" && ECHO == Conexion detectada, continuando == && goto driverpack)
+	ECHO // PRECAUCION: CONEXION A INTERNET NO DETECTADA \\ & call powershell "%alarm_warning%"
+	CHOICE /C:SN /N /T 10 /D S /M ">> Desea volver a verificar la conexion? [S,N]: "
+	if "!errorlevel!" == "1" GOTO dp-netcheck
+	SET connected="1"
+	goto driverpack
 
 	:strlen  StrVar  [RtnVar]
   	setlocal EnableDelayedExpansion
@@ -333,12 +348,12 @@
 	ECHO.
 	TIMEOUT 1 /nobreak > nul
 	CHOICE /c:123450 /N /M " >> Opcion Seleccionada: "
-	IF %ERRORLEVEL% EQU 6 EXIT
-	IF %ERRORLEVEL% EQU 1 GOTO antivirus
-	IF %ERRORLEVEL% EQU 2 GOTO antivirus
-	IF %ERRORLEVEL% EQU 3 GOTO antivirus
-	IF %ERRORLEVEL% EQU 4 GOTO steps-menu
-	IF %ERRORLEVEL% EQU 5 ECHO -- NO IMPLEMENTADO -- && PAUSE && GOTO intro
+	IF !ERRORLEVEL! EQU 6 EXIT
+	IF !ERRORLEVEL! EQU 1 GOTO antivirus
+	IF !ERRORLEVEL! EQU 2 GOTO antivirus
+	IF !ERRORLEVEL! EQU 3 GOTO antivirus
+	IF !ERRORLEVEL! EQU 4 GOTO steps-menu
+	IF !ERRORLEVEL! EQU 5 ECHO -- NO IMPLEMENTADO -- && PAUSE && GOTO intro
 
 	:steps-menu
 	Cls
@@ -364,14 +379,14 @@
 	ECHO.
 	TIMEOUT 1 /nobreak > nul
 	CHOICE /c:12345670 /N /M " >> Opcion Seleccionada: "
-	IF %ERRORLEVEL% EQU 1 GOTO antivirus
-	IF %ERRORLEVEL% EQU 2 GOTO webtest
-	IF %ERRORLEVEL% EQU 3 GOTO driverpack
-	IF %ERRORLEVEL% EQU 4 GOTO mediacheck
-	IF %ERRORLEVEL% EQU 5 GOTO cameratest
-	IF %ERRORLEVEL% EQU 6 GOTO cdtest
-	IF %ERRORLEVEL% EQU 7 GOTO summary
-	IF %ERRORLEVEL% EQU 8 GOTO main-menu
+	IF !ERRORLEVEL! EQU 1 GOTO antivirus
+	IF !ERRORLEVEL! EQU 2 GOTO webtest
+	IF !ERRORLEVEL! EQU 3 GOTO dp-netcheck
+	IF !ERRORLEVEL! EQU 4 GOTO mediacheck
+	IF !ERRORLEVEL! EQU 5 GOTO cameratest
+	IF !ERRORLEVEL! EQU 6 GOTO cdtest
+	IF !ERRORLEVEL! EQU 7 GOTO summary
+	IF !ERRORLEVEL! EQU 8 GOTO main-menu
 
 	:: UTILIDADES EOF
 
@@ -385,6 +400,7 @@
 	:: AGREGAR CHECKLIST DE PASOS AL FINAL
 
 	:: < BUGS - ESTA ITERACION >
+	:: AL ENTRAR A DRIVERPACK POR MEDIO DE MENU NO GENERA UN VALOR DE CONNECTED, ASI CRASHEANDO EL SCRIPT
 
 	:: == Bucket list ==
 	:: REVISAR COMPATIBILIDAD CON WINDOWS 7 (PROBABLEMENTE NUEVO SCRIPT)
