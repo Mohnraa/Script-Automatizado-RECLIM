@@ -35,7 +35,7 @@
 	:: Esta seccion verifica si existe una conexion a internet
 	ECHO.
 	ECHO -- Verificando conexion a internet --
-	ping 8.8.8.8 > nul
+	ping 1.1.1.1. > nul
 	if "%errorlevel%" == "0" SET connected="0" && ECHO == Conexion detectada, continuando == && goto kmsonline
 	ECHO // Conexion a internet no detectada \\ & call powershell "%alarm_warning%"
 	CHOICE /C:SN /N /T 10 /D S /M ">> Desea volver a verificar la conexion? [S,N]: "
