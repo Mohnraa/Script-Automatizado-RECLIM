@@ -3,7 +3,7 @@
 cd /d %ProgramFiles%\Microsoft Office\Office16
 
 ::Instalar licencias para Office 2021 Pro Plus VL
-for /f %x in ('dir /b ..\root\Licenses16\ProPlus2021VL*.xrm-ms') do cscript ospp.vbs /inslic:"..\root\Licenses16\%x"
+for /f %%x in ('dir /b ..\root\Licenses16\ProPlus2021VL*.xrm-ms') do cscript ospp.vbs /inslic:"..\root\Licenses16\%x"
 
 ::Seleccionar puerto de servidor KMS a 1688
 cscript ospp.vbs /setprt:1688

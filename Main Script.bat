@@ -20,6 +20,10 @@
      )
     GOTO antivirus
 
+    :install-apps
+    call "%~dp0Apps\Install-apps-script.bat"
+    GOTO antivirus
+
 	:antivirus
 	::Esta seccion abre Seguridad de Windows
 	ECHO.
@@ -320,8 +324,6 @@
 	set "command=2^>nul WMIC SystemEnclosure Get ChassisTypes /value" 
 	for /f "tokens=2 delims=={}" %%A IN ('%command%') do ( 
 	2>nul set /a "chassNum=%%A"
-
-	:install-apps
 	
 
 	:: == MENUS == ==================================================================================================
@@ -351,9 +353,9 @@
 	IF !ERRORLEVEL! EQU 6 EXIT
 	IF !ERRORLEVEL! EQU 1 GOTO antivirus
 	IF !ERRORLEVEL! EQU 2 GOTO antivirus
-	IF !ERRORLEVEL! EQU 3 GOTO antivirus
+	IF !ERRORLEVEL! EQU 3 GOTO install-apps
 	IF !ERRORLEVEL! EQU 4 GOTO steps-menu
-	IF !ERRORLEVEL! EQU 5 ECHO -- NO IMPLEMENTADO -- && PAUSE && GOTO intro
+	IF !ERRORLEVEL! EQU 5 ECHO -- PROXIMAMENTE, REGRESANDO AL MENU -- && TIMEOUT 5 > nul && GOTO intro
 
 	:steps-menu
 	Cls
